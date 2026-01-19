@@ -1,32 +1,18 @@
-const express = require('express');
+import express from 'express';
+import createPaymentLinkHandler from './api/createPaymentLink.js';
+
 const app = express();
-
-// Import your handlers using require
-const createPaymentLink = require('./api/createpaymentlink');
-const getPaymentLinkDetails = require('./api/getPaymentLinkDetails');
-const salesCreate = require('./api/sales/create');
-const salesGet = require('./api/sales/get');
-const salesStats = require('./api/sales/stats');
-const salesUpdate = require('./api/sales/update');
-
 const port = process.env.PORT || 8080;
 
-// Important: Cloud Run needs to parse the JSON body 
-// so your 'req.body' isn't empty in create.js
+// 1. Enable JSON body parsing (Required because your handler uses req.body)
+//Test
 app.use(express.json());
 
-// Routes
-app.all('/api/createpaymentlink', createPaymentLink);
-app.all('/api/getPaymentLinkDetails', getPaymentLinkDetails);
-app.all('/api/sales/create', salesCreate);
-app.all('/api/sales/get', salesGet);
-app.all('/api/sales/stats', salesStats);
-app.all('/api/sales/update', salesUpdate);
+// 2. Define your routes
+// We use .all() to let your handler manage GET/POST/OPTIONS logic itself
+app.all('/api/createpaymentlink', createPaymentLinkHandler);
 
-// Root health check
-app.get('/', (req, res) => res.send('API Server is Live'));
-
-// Listen on 0.0.0.0
+// 3. Start the server (This is what Cloud Run was missing!)
 app.listen(port, '0.0.0.0', () => {
-    console.log(`Server started on port ${port}`);
+    console.log(`Server listening on port ${port}`);
 });

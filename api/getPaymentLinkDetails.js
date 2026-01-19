@@ -1,27 +1,19 @@
-// Dynamic import for node-fetch compatibility with CommonJS
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
 
 const addCorsHeaders = (res, origin = "*") => {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
 };
-
-module.exports = async function handler(req, res) {
-    // Always add CORS headers
+export default async function handler(req, res) {
     addCorsHeaders(res, req.headers.origin || "*");
-
-    // Handle preflight (OPTIONS)
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
-    }
 
     // Only allow GET
     if (req.method !== "GET") {
         return res.status(405).json({ error: "Only GET allowed" });
     }
 
-    // Express populates req.query automatically
+    // Expect link_id as a query parameter
     const { link_id } = req.query;
     if (!link_id) {
         return res.status(400).json({ error: "link_id is required" });
@@ -45,10 +37,6 @@ module.exports = async function handler(req, res) {
 
     } catch (error) {
         console.error("Error fetching payment link details:", error);
-        return res.status(500).json({
-            success: false,
-            error: "Server error",
-            details: error.message
-        });
+        return res.status(500).json({ error: "Server error" });
     }
-};
+}
