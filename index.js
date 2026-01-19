@@ -5,6 +5,7 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 // 1. Enable JSON body parsing (Required because your handler uses req.body)
+//Test
 app.use(express.json());
 
 // 2. Define your routes
