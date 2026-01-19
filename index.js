@@ -11,7 +11,7 @@ import updateHandler from './api/sales/update.js';
 
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = 8080;
 
 // 1. Enable JSON body parsing (Required because your handler uses req.body)
 //Test
