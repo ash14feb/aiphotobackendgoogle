@@ -1,7 +1,6 @@
 import express from 'express';
 import createPaymentLinkHandler from './api/createPaymentLink.js';
-import createPaymentLinkHandler from './api/getPaymentLinkDetails.js';
-import createPaymentLinkHandler from './api/getPaymentLinkDetails.js';
+import getPaymentLinkDetailsHandler from './api/getPaymentLinkDetails.js';
 
 import createHandler from './api/sales/create.js';
 
