@@ -1,14 +1,27 @@
+import { query } from '../../lib/db.js';
 
-const { addCorsHeaders, handleCorsPreflight } = require('../../utils/cors');
-const { query } = require('../../lib/db');
+// CORS helper matching your other API files
+const addCorsHeaders = (res, origin = "*") => {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+};
 
-module.exports = async function handler(req, res) {
-    // Handle CORS
-    if (handleCorsPreflight(req, res)) return;
+export default async function handler(req, res) {
+    // Always add CORS headers
+    addCorsHeaders(res, req.headers.origin || "*");
 
+    // Handle preflight (OPTIONS)
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
+    // Only allow GET
     if (req.method !== 'GET') {
-        addCorsHeaders(res, req.headers.origin || "*");
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({
+            success: false,
+            error: 'Method not allowed'
+        });
     }
 
     try {
@@ -46,8 +59,7 @@ module.exports = async function handler(req, res) {
 
         const trendStats = trendQuery ? await query(trendQuery) : [];
 
-        addCorsHeaders(res, req.headers.origin || "*");
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             stats: {
                 total: totalResult,
@@ -59,8 +71,7 @@ module.exports = async function handler(req, res) {
 
     } catch (error) {
         console.error('Error fetching stats:', error);
-        addCorsHeaders(res, req.headers.origin || "*");
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             error: 'Failed to fetch statistics',
             details: error.message

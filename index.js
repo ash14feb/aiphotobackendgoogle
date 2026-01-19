@@ -1,18 +1,37 @@
 import express from 'express';
-import createPaymentLinkHandler from './api/createPaymentLink.js';
+
+// Import Handlers
+import createPaymentLinkHandler from './api/createpaymentlink.js';
+import getPaymentLinkDetailsHandler from './api/getPaymentLinkDetails.js';
+import salesCreateHandler from './api/sales/create.js';
+import salesGetHandler from './api/sales/get.js';
+import salesStatsHandler from './api/sales/stats.js';
+import salesUpdateHandler from './api/sales/update.js';
 
 const app = express();
 const port = process.env.PORT || 8080;
 
-// 1. Enable JSON body parsing (Required because your handler uses req.body)
-//Test
+// Middleware
 app.use(express.json());
 
-// 2. Define your routes
-// We use .all() to let your handler manage GET/POST/OPTIONS logic itself
-app.all('/api/createpaymentlink', createPaymentLinkHandler);
+// --- ROUTES ---
 
-// 3. Start the server (This is what Cloud Run was missing!)
+// Payment Routes
+app.all('/api/createpaymentlink', createPaymentLinkHandler);
+app.all('/api/getPaymentLinkDetails', getPaymentLinkDetailsHandler);
+
+// Sales Routes
+app.all('/api/sales/create', salesCreateHandler);
+app.all('/api/sales/get', salesGetHandler);
+app.all('/api/sales/stats', salesStatsHandler);
+app.all('/api/sales/update', salesUpdateHandler);
+
+// Health Check for Cloud Run
+app.get('/', (req, res) => {
+    res.status(200).send('API Server is running');
+});
+
+// Start Server
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server listening on port ${port}`);
 });

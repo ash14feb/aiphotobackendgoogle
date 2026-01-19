@@ -1,12 +1,23 @@
-﻿const { addCorsHeaders, handleCorsPreflight } = require('../../utils/cors');
-const { query } = require('../../lib/db');
+﻿import { query } from '../../lib/db.js';
 
-module.exports = async function handler(req, res) {
-    // Handle CORS
-    if (handleCorsPreflight(req, res)) return;
+// CORS helper matching your other API files
+const addCorsHeaders = (res, origin = "*") => {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+};
 
+export default async function handler(req, res) {
+    // Always add CORS headers
+    addCorsHeaders(res, req.headers.origin || "*");
+
+    // Handle preflight (OPTIONS)
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
+    // Only allow PUT
     if (req.method !== 'PUT') {
-        addCorsHeaders(res, req.headers.origin || "*");
         return res.status(405).json({
             success: false,
             error: 'Method not allowed'
@@ -70,7 +81,7 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        // Add UpdatedAt timestamp
+        // Add UpdatedAt timestamp (if your schema has it)
         updates.push('UpdatedAt = CURRENT_TIMESTAMP');
 
         // Add ID for WHERE clause
@@ -79,8 +90,6 @@ module.exports = async function handler(req, res) {
         const sql = `UPDATE PhotoAISales SET ${updates.join(', ')} WHERE ID = ?`;
 
         console.log('🔧 Update SQL:', sql);
-        console.log('🔧 Update values:', values);
-
         const result = await query(sql, values);
 
         // Fetch the updated record
@@ -89,8 +98,7 @@ module.exports = async function handler(req, res) {
             [id]
         );
 
-        addCorsHeaders(res, req.headers.origin || "*");
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Sale record updated successfully',
             data: updatedSale,
@@ -99,8 +107,7 @@ module.exports = async function handler(req, res) {
 
     } catch (error) {
         console.error('❌ Error updating sale:', error);
-        addCorsHeaders(res, req.headers.origin || "*");
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             error: 'Failed to update sale record',
             details: error.message

@@ -1,13 +1,27 @@
-﻿const { addCorsHeaders, handleCorsPreflight } = require('../../utils/cors');
-const { query } = require('../../lib/db');
+﻿import { query } from '../../lib/db.js';
 
-module.exports = async function handler(req, res) {
-    // Handle CORS
-    if (handleCorsPreflight(req, res)) return;
+// CORS helper matching createpaymentlink.js
+const addCorsHeaders = (res, origin = "*") => {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+};
 
+export default async function handler(req, res) {
+    // Always add CORS headers
+    addCorsHeaders(res, req.headers.origin || "*");
+
+    // Handle preflight (OPTIONS)
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
+    // Only allow GET
     if (req.method !== 'GET') {
-        addCorsHeaders(res, req.headers.origin || "*");
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ 
+            success: false,
+            error: 'Method not allowed' 
+        });
     }
 
     try {
@@ -64,11 +78,6 @@ module.exports = async function handler(req, res) {
 
         sql += ' ORDER BY DateTime DESC, ID DESC';
 
-        // Remove pagination for now to fix the issue
-        // const offset = (parseInt(page) - 1) * parseInt(limit);
-        // sql += ' LIMIT ? OFFSET ?';
-        // params.push(parseInt(limit), offset);
-
         console.log('🔍 Executing SQL:', sql);
         console.log('🔍 With params:', params);
 
@@ -76,8 +85,7 @@ module.exports = async function handler(req, res) {
 
         console.log('✅ Found', sales.length, 'records');
 
-        addCorsHeaders(res, req.headers.origin || "*");
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: sales,
             count: sales.length
@@ -87,15 +95,14 @@ module.exports = async function handler(req, res) {
         console.error('❌ Error in GET /sales:', {
             message: error.message,
             code: error.code,
-            sql: error.sql,
-            params: error.params
+            sql: error.sql
         });
 
-        addCorsHeaders(res, req.headers.origin || "*");
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             error: 'Failed to fetch sales data',
             details: error.message
         });
     }
+}
 }
