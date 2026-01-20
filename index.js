@@ -2,6 +2,9 @@ import express from 'express';
 import createPaymentLinkHandler from './api/createPaymentLink.js';
 import getPaymentLinkDetailsHandler from './api/getPaymentLinkDetails.js';
 import createHandler from './api/sales/create.js';
+import getHandler from './api/sales/create.js';
+import statsHandler from './api/sales/stats.js';
+import updateHandler from './api/sales/update.js';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -15,6 +18,9 @@ app.use(express.json());
 app.all('/api/createpaymentlink', createPaymentLinkHandler);
 app.all('/api/getPaymentLinkDetails', getPaymentLinkDetailsHandler);
 app.all('/api/sales/create', createHandler);
+app.all('/api/sales/get', getHandler);
+app.all('/api/sales/stats', statsHandler);
+app.all('/api/sales/update', updateHandler);
 
 // 3. Start the server (This is what Cloud Run was missing!)
 app.listen(port, '0.0.0.0', () => {
