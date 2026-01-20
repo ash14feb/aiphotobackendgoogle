@@ -10,6 +10,7 @@ const addCorsHeaders = (res, origin = "*") => {
 export default async function handler(req, res) {
     // Always add CORS headers
     addCorsHeaders(res, req.headers.origin || "*");
+    console.log('HTTP Method:', req.method);
 
     // Handle preflight (OPTIONS)
     if (req.method === "OPTIONS") {
@@ -17,11 +18,17 @@ export default async function handler(req, res) {
     }
 
     // Only allow GET
-    if (req.method !== 'GET') {
-        return res.status(405).json({ 
+    // Only allow GET or HEAD
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+        return res.status(405).json({
             success: false,
-            error: 'Method not allowed' 
+            error: 'Method not allowed'
         });
+    }
+
+    // For HEAD requests, just return headers
+    if (req.method === 'HEAD') {
+        return res.status(200).end();
     }
 
     try {
