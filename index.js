@@ -1,6 +1,7 @@
 import express from 'express';
 import createPaymentLinkHandler from './api/createPaymentLink.js';
 import getPaymentLinkDetailsHandler from './api/getPaymentLinkDetails.js';
+import createHandler from './api/sales/create.js';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -13,6 +14,7 @@ app.use(express.json());
 // We use .all() to let your handler manage GET/POST/OPTIONS logic itself
 app.all('/api/createpaymentlink', createPaymentLinkHandler);
 app.all('/api/getPaymentLinkDetails', getPaymentLinkDetailsHandler);
+app.all('/api/sales/create', createHandler);
 
 // 3. Start the server (This is what Cloud Run was missing!)
 app.listen(port, '0.0.0.0', () => {
