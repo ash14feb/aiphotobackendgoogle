@@ -19,12 +19,12 @@ export default async function handler(req, res) {
 
     // Only allow GET
     // Only allow GET or HEAD
-    if (req.method !== 'GET' && req.method !== 'HEAD') {
-        return res.status(405).json({
-            success: false,
-            error: 'Method not allowed'
-        });
-    }
+    //if (req.method !== 'GET' && req.method !== 'HEAD') {
+    //    return res.status(405).json({
+    //        success: false,
+    //        error: 'Method not allowed'
+    //    });
+    //}
 
     // For HEAD requests, just return headers
     if (req.method === 'HEAD') {
