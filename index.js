@@ -2,7 +2,7 @@ import express from 'express';
 import createPaymentLinkHandler from './api/createPaymentLink.js';
 import getPaymentLinkDetailsHandler from './api/getPaymentLinkDetails.js';
 import createHandler from './api/sales/create.js';
-import getHandler from './api/sales/create.js';
+import getHandler from './api/sales/get.js';
 import statsHandler from './api/sales/stats.js';
 import updateHandler from './api/sales/update.js';
 
